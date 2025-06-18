@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Point extends Model
 {
-    protected $fillable = ['route_id', 'name', 'map_number', 'location', 'description'];
+//    protected $fillable = ['route_id', 'name', 'map_number', 'location', 'description'];
     public function route()
     {
         return $this->belongsTo(Route::class);

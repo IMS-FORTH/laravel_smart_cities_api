@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Route extends Model
 {
-    protected $fillable = ['name', 'description'];
+//    protected $fillable = ['name', 'description'];
     public function points()
     {
         return $this->hasMany(Point::class);
