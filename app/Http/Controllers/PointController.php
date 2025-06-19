@@ -56,6 +56,68 @@ class PointController extends Controller
             }),
         ]);
     }
+    public function geojsonCollection()
+    {
+        $points = DB::select("
+        SELECT
+            id, name, route_id, map_number, description,
+            ST_X(location) AS lng,
+            ST_Y(location) AS lat
+        FROM points
+    ");
+
+        $features = collect($points)->map(function ($point) {
+            return [
+                'type' => 'Feature',
+                'geometry' => [
+                    'type' => 'Point',
+                    'coordinates' => [(float) $point->lng, (float) $point->lat],
+                ],
+                'properties' => [
+                    'id' => $point->id,
+                    'name' => $point->name,
+                    'description' => $point->description,
+                    'map_number' => $point->map_number,
+                    'route_id' => $point->route_id,
+                ],
+            ];
+        });
+
+        return response()->json([
+            'type' => 'FeatureCollection',
+            'features' => $features,
+        ])->header('Content-Type', 'application/geo+json');
+    }
+
+    public function geojson($id)
+    {
+        $point = Point::findOrFail($id);
+
+        // Extract coordinates (assuming location is PostGIS geometry)
+        $coords = DB::selectOne("
+        SELECT
+            ST_X(location) AS lng,
+            ST_Y(location) AS lat
+        FROM points
+        WHERE id = ?
+        LIMIT 1
+    ", [$id]);
+
+        return response()->json([
+            'type' => 'Feature',
+            'geometry' => [
+                'type' => 'Point',
+                'coordinates' => [(float) $coords->lng, (float) $coords->lat]
+            ],
+            'properties' => [
+                'id' => $point->id,
+                'name' => $point->name,
+                'description' => $point->description,
+                'map_number' => $point->map_number,
+                'route_id' => $point->route_id
+            ]
+        ])->header('Content-Type', 'application/geo+json');
+    }
 
 //    public function nearby(Request $request)
 //    {

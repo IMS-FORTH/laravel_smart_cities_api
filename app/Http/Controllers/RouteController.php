@@ -57,6 +57,49 @@ class RouteController extends Controller
         ]);
     }
 
-
-
+//return the points_within_radius and the closest point
+//    public function nearby(Request $request)
+//    {
+//        $lat = $request->query('lat');
+//        $lng = $request->query('lng');
+//        $radius = $request->query('radius', 1000); // meters
+//
+//        if (!$lat || !$lng) {
+//            return response()->json([
+//                'error' => 'Missing lat or lng parameters'
+//            ], 400);
+//        }
+//
+//        // Step 1: Get all nearby points
+//        $nearbyPoints = DB::select("
+//            SELECT id, name, route_id,
+//                   ST_Y(location) AS lat,
+//                   ST_X(location) AS lng,
+//                   ST_DistanceSphere(location, ST_MakePoint(?, ?)) AS distance
+//            FROM points
+//            WHERE ST_DWithin(location::geography, ST_MakePoint(?, ?)::geography, ?)
+//        ", [$lng, $lat, $lng, $lat, $radius]);
+//
+//        // Step 2: Group points by route_id
+//        $grouped = collect($nearbyPoints)->groupBy('route_id');
+//
+//        // Step 3: Get all matching route records
+//        $routeIds = $grouped->keys();
+//        $routes = DB::table('routes')
+//            ->whereIn('id', $routeIds)
+//            ->get()
+//            ->map(function ($route) use ($grouped) {
+//                $points = $grouped[$route->id];
+//
+//                return [
+//                    'id' => $route->id,
+//                    'name' => $route->name,
+//                    'description' => $route->description,
+//                    'points_within_radius' => $points->count(),
+//                    'closest_point' => $points->sortBy('distance')->first()
+//                ];
+//            });
+//
+//        return response()->json($routes);
+//    }
 }

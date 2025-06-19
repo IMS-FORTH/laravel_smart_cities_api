@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 //});
 Route::get('points/nearby',[PointController::class,'nearby']);
 Route::get('/routes/nearby', [RouteController::class, 'nearby']);
+Route::get('/points/geojson', [PointController::class, 'geojsonCollection']);
 Route::apiResource('routes', RouteController::class)->only(['index','show']);
 Route::apiResource('points', PointController::class)->only(['index', 'show']);
 Route::apiResource('tags', TagController::class)->only(['index', 'show']);
@@ -26,4 +27,7 @@ Route::get('/routes/{id}/points', function ($id) {
 Route::get('/routes/{id}/tags', function ($id) {
     return \App\Models\Route::findOrFail($id)->tags;
 });
+
+
+Route::get('/points/{id}/geojson', [PointController::class, 'geojson']);
 
