@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Point;
 use App\Models\Route;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -26,7 +27,7 @@ class PointController extends Controller
         return Point::with('bibliographies')->findOrFail($id);
     }
 
-    public function nearby(Request $request)
+    public function nearby(Request $request): JsonResponse
     {
         $lat = $request->query('lat');
         $lng = $request->query('lng');
@@ -56,22 +57,15 @@ class PointController extends Controller
             }),
         ]);
     }
-    public function geojsonCollection()
+    public function geojsonCollection(): JsonResponse
     {
-        $points = DB::select("
-        SELECT
-            id, name, route_id, map_number, description,
-            ST_X(location) AS lng,
-            ST_Y(location) AS lat
-        FROM points
-    ");
-
+        $points = Point::all();
         $features = collect($points)->map(function ($point) {
             return [
                 'type' => 'Feature',
                 'geometry' => [
                     'type' => 'Point',
-                    'coordinates' => [(float) $point->lng, (float) $point->lat],
+                    'coordinates' => [(float) $point->getLngAttribute(), (float) $point->getLatAttribute()],
                 ],
                 'properties' => [
                     'id' => $point->id,
@@ -89,25 +83,17 @@ class PointController extends Controller
         ])->header('Content-Type', 'application/geo+json');
     }
 
-    public function geojson($id)
+    public function geojson($id): JsonResponse
     {
         $point = Point::findOrFail($id);
-
-        // Extract coordinates (assuming location is PostGIS geometry)
-        $coords = DB::selectOne("
-        SELECT
-            ST_X(location) AS lng,
-            ST_Y(location) AS lat
-        FROM points
-        WHERE id = ?
-        LIMIT 1
-    ", [$id]);
+        $lng = $point->getLngAttribute();
+        $lat = $point->getLatAttribute();
 
         return response()->json([
             'type' => 'Feature',
             'geometry' => [
                 'type' => 'Point',
-                'coordinates' => [(float) $coords->lng, (float) $coords->lat]
+                'coordinates' => [(float) $lng, (float) $lat]
             ],
             'properties' => [
                 'id' => $point->id,

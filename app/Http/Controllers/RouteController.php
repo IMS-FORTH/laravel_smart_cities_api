@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Point;
 use App\Models\Route;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -28,7 +29,7 @@ class RouteController extends Controller
         return Route::with('tags','points.bibliographies')->findOrFail($id);
     }
 
-    public function nearby(Request $request)
+    public function nearby(Request $request): JsonResponse
     {
         $lat = $request->query('lat');
         $lng = $request->query('lng');
