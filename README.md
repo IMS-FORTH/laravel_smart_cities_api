@@ -3,16 +3,19 @@
 
 ## API Endpoints
 
-GET|HEAD       api/points<br>
-GET|HEAD       api/points/{point}<br>
-GET|HEAD       api/points/nearby<br>
-GET|HEAD       api/points/geojson<br>
-GET|HEAD       api/points/{id}/geojson<br>
-GET|HEAD       api/routes<br>
-GET|HEAD       api/routes/{route}<br>
-GET|HEAD       api/routes/{id}/points<br>
-GET|HEAD       api/routes/{id}/tags<br>
-GET|HEAD       api/routes/nearby<br>
+### Points
+- `GET /api/points` - List all points
+- `GET /api/points/{point}` - Get specific point details
+- `GET /api/points/nearby` - Find points near a location (requires lat/lng/radius)
+- `GET /api/points/geojson` - Get all points as GeoJSON feature collection
+- `GET /api/points/{id}/geojson` - Get specific point as GeoJSON feature
+
+### Routes
+- `GET /api/routes` - List all routes
+- `GET /api/routes/{route}` - Get specific route details
+- `GET /api/routes/{id}/points` - Get points belonging to a route
+- `GET /api/routes/{id}/tags` - Get tags associated with a route
+- `GET /api/routes/nearby` - Find routes near a location (requires lat/lng/radius)
 
 ### Points Resource
 
