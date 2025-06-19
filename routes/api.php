@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 //    return 'Hello World';
 //});
 Route::get('points/nearby',[PointController::class,'nearby']);
+Route::get('/routes/nearby', [RouteController::class, 'nearby']);
 Route::apiResource('routes', RouteController::class)->only(['index','show']);
 Route::apiResource('points', PointController::class)->only(['index', 'show']);
 Route::apiResource('tags', TagController::class)->only(['index', 'show']);

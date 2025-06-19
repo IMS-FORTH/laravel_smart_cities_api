@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Point;
 use App\Models\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 
 class RouteController extends Controller
@@ -27,37 +28,35 @@ class RouteController extends Controller
         return Route::with('tags','points.bibliographies')->findOrFail($id);
     }
 
+    public function nearby(Request $request)
+    {
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+        $radius = $request->query('radius', 1000); // default in meters
 
-//    public function nearPoints($lat, $lng, $rad)
-//    {
-//        // Convert to float (security handled by route regex)
-//        $latitude = (float)$lat;
-//        $longitude = (float)$lng;
-//        $radiusMeters = (float)$rad * 1000;
-//
-//        // Validate ranges
-//        if ($latitude < -90 || $latitude > 90 || $longitude < -180 || $longitude > 180) {
-//            return response()->json(['error' => 'Invalid coordinates'], 400);
-//        }
-//
-//        $routes = Route::whereHas('points', function($query) use ($longitude, $latitude, $radiusMeters) {
-//            $query->whereRaw(
-//                "ST_DWithin(
-//                location::geography,
-//                ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography,
-//                ?
-//            )",
-//                [$longitude, $latitude, $radiusMeters]
-//            );
-//        })->with(['points' => function($query) use ($longitude, $latitude, $radiusMeters) {
-//            $query->whereRaw("ST_DWithin(
-//                location::geography,
-//                ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography,
-//                ?
-//            )"); // Same as above
-//        }])->get();
-//
-//        return response()->json($routes);
-//    }
+        if (!$lat || !$lng) {
+            return response()->json([
+                'error' => 'Missing lat or lng parameters'
+            ], 400);
+        }
+
+        // Step 1: Find route_ids of points within the given radius
+        $routeIds = DB::table('points')
+            ->select('route_id')
+            ->whereRaw("ST_DWithin(location::geography, ST_MakePoint(?, ?)::geography, ?)", [$lng, $lat, $radius])
+            ->distinct()
+            ->pluck('route_id');
+
+        // Step 2: Fetch routes that match these IDs
+        $routes = DB::table('routes')
+            ->whereIn('id', $routeIds)
+            ->get();
+
+        return response()->json([
+            'routes' => $routes
+        ]);
+    }
+
+
 
 }
